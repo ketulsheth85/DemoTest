@@ -1,0 +1,61 @@
+﻿@model Response
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div>
+    <h3 class="display-4">Song Finder</h3>
+    <center>
+        <form asp-controller="Home" asp-action="Index">
+            <table>
+                <tr>
+                    <td>Song : </td>
+                    <td>
+                        @Html.TextBoxFor(m => m.pattern, new { id = "txtpattern" })
+                    </td>
+                    <td>
+                        @*<input type="submit" value="Submit" />*@
+                        <input type="button" value="Search" onclick="GetData();" />
+                    </td>
+                </tr>
+            </table>
+            <hr />
+        </form>
+    </center>
+
+    <table class="table table-bordered table-striped table-sm" id="tbtext">
+        <thead>
+            <tr>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+
+
+</div>
+
+<script type="text/javascript">
+    function GetData() {
+        var serviceURL = '/Home/SearchSong';
+        var _pattern = $('#txtpattern').val()
+        $.ajax({
+            type: "GET",
+            data: { size: 50, pattern: _pattern },
+            url: serviceURL,
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                var htmldata = '';
+                $('#tbody').empty();
+                $.each(data.lstsong, function (index, value) {
+                    htmldata += '<tr><td>' + value.title + '</tr></td>';
+                    let re = new RegExp(_pattern, "gi"); // search for all instances
+                    let newText = htmldata.replace(re, '<span style="background:yellow">' + _pattern + '</span>');
+                    htmldata = newText;
+                });
+                $('#tbody').append(htmldata);
+            }
+        });
+    }
+</script>
